@@ -2,14 +2,12 @@
   "name": "code-editor",
   "version": "0.1.0",
   "private": true,
-
   "scripts": {
-   "dev": "set NEXT_DISABLE_TURBOPACK=1 && next dev",
+    "dev": "set NEXT_DISABLE_TURBOPACK=1 && next dev",
     "build": "next build",
     "start": "next start",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate"
-    
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
