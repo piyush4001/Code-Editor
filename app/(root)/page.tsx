@@ -15,8 +15,7 @@ export default function Home() {
         Vibe Code With with Intelligence
       </h1>
       </div>
-     
-
+    
       <p className="mt-2 text-lg text-center text-gray-600 dark:text-gray-400 px-5 py-10 max-w-2xl">
         VibeCode Editor is a powerful and intelligent code editor that enhances
         your coding experience with advanced features and seamless integration.
