@@ -1,7 +1,5 @@
 import "server-only";
 
-
-
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
@@ -36,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 tokenType: account.token_type,
                 scope: account.scope,
                 idToken: account.id_token,
-                sessionState: account.session_state,
+                sessionState: account.session_state as string | null,
               },
             },
           },
@@ -66,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               tokenType: account.token_type,
               scope: account.scope,
               idToken: account.id_token,
-              sessionState: account.session_state,
+              sessionState: account.session_state as string | null,
             },
           });
         }
@@ -74,26 +72,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async jwt({token}) {
-        if(!token.sub)return token;
-        const existingUser = await getUserById(token.sub);
-        if(!existingUser)return token;
+    async jwt({ token }) {
+      if (!token.sub) return token;
+      const existingUser = await getUserById(token.sub);
+      if (!existingUser) return token;
 
-        token.name = existingUser.name;
-        token.email = existingUser.email;
+      token.name = existingUser.name;
+      token.email = existingUser.email;
 
-        token.role = existingUser.role;
-        return token;
+      token.role = existingUser.role;
+      return token;
     },
-    async session({session,token}) {
-        if(token.sub && session.user){
-            session.userId = token.sub
-        }
-        if(token.sub && session.user){
-            session.user.role = token.role
-        }
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.userId = token.sub;
+      }
+      if (token.sub && session.user && token.role) {
+        session.user.role = token.role;
+      }
 
-        return session
+      return session;
     },
   },
   secret: process.env.AUTH_SECRET,

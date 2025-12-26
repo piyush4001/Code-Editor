@@ -43,6 +43,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MoreHorizontal,
   Edit3,
@@ -54,16 +55,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkedToggleButton } from "./marked-toggle";
+import { deleteProjectById, duplicateProjectById, editProjectById } from "../actions";
 
 interface ProjectTableProps {
   projects: Project[];
-  onUpdateProject?: (
-    id: string,
-    data: { title: string; description: string }
-  ) => Promise<void>;
-  onDeleteProject?: (id: string) => Promise<void>;
-  onDuplicateProject?: (id: string) => Promise<void>;
-  
 }
 
 interface EditProjectData {
@@ -73,11 +68,8 @@ interface EditProjectData {
 
 export default function ProjectTable({
   projects,
-  onUpdateProject,
-  onDeleteProject,
-  onDuplicateProject,
-
 }: ProjectTableProps) {
+  const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -104,14 +96,15 @@ export default function ProjectTable({
   };
 
   const handleUpdateProject = async () => {
-    if (!selectedProject || !onUpdateProject) return;
+    if (!selectedProject) return;
 
     setIsLoading(true);
 
     try {
-      await onUpdateProject(selectedProject.id, editData);
+      await editProjectById(selectedProject.id, editData);
       setEditDialogOpen(false);
       toast.success("Project updated successfully");
+      router.refresh();
     } catch (error) {
       toast.error("Failed to update project");
       console.error("Error updating project:", error);
@@ -125,14 +118,15 @@ export default function ProjectTable({
   };
 
   const handleDeleteProject = async () => {
-    if (!selectedProject || !onDeleteProject) return;
+    if (!selectedProject) return;
 
     setIsLoading(true);
     try {
-      await onDeleteProject(selectedProject.id);
+      await deleteProjectById(selectedProject.id);
       setDeleteDialogOpen(false);
       setSelectedProject(null);
       toast.success("Project deleted successfully");
+      router.refresh();
     } catch (error) {
       toast.error("Failed to delete project");
       console.error("Error deleting project:", error);
@@ -142,12 +136,11 @@ export default function ProjectTable({
   };
 
   const handleDuplicateProject = async (project: Project) => {
-    if (!onDuplicateProject) return;
-
     setIsLoading(true);
     try {
-      await onDuplicateProject(project.id);
+      await duplicateProjectById(project.id);
       toast.success("Project duplicated successfully");
+      router.refresh();
     } catch (error) {
       toast.error("Failed to duplicate project");
       console.error("Error duplicating project:", error);
@@ -172,7 +165,7 @@ export default function ProjectTable({
               <TableHead>Template</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>User</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              <TableHead className="w-12.5">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -209,13 +202,13 @@ export default function ProjectTable({
                     <div className="w-8 h-8 rounded-full overflow-hidden">
                       <Image
                         src={project.user.image || "/placeholder.svg"}
-                        alt={project.user.name}
+                        alt={project.user.name || "User"}
                         width={32}
                         height={32}
                         className="object-cover"
                       />
                     </div>
-                    <span className="text-sm">{project.user.name}</span>
+                    <span className="text-sm">{project.user.name || "Unknown"}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -228,7 +221,7 @@ export default function ProjectTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem asChild>
-                        <MarkedToggleButton markedForRevision={project.Starmark[0]?.isMarked} id={project.id} />
+                        <MarkedToggleButton markedForRevision={project.Starmarked[0]?.isMarked} id={project.id} />
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
@@ -287,7 +280,7 @@ export default function ProjectTable({
 
       {/* Edit Project Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>Edit Project</DialogTitle>
             <DialogDescription>
