@@ -6,7 +6,7 @@ import { StarIcon, StarOffIcon } from "lucide-react"
 import type React from "react"
 import { useState, useEffect, forwardRef } from "react"
 import { toast } from "sonner"
-// import { toggleStarMarked } from "../actions"
+import { toggleStarMarked } from "../actions"
 
 interface MarkedToggleButtonProps extends React.ComponentPropsWithoutRef<typeof Button> {
   markedForRevision: boolean
@@ -21,39 +21,39 @@ export const MarkedToggleButton = forwardRef<HTMLButtonElement, MarkedToggleButt
       setIsMarked(markedForRevision)
     }, [markedForRevision])
 
-    // const handleToggle = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    //   // Call the original onClick if provided by the parent (DropdownMenuItem)
-    //   onClick?.(event)
+    const handleToggle = async (event: React.MouseEvent<HTMLButtonElement>) => {
+      // Call the original onClick if provided by the parent (DropdownMenuItem)
+      onClick?.(event)
 
-    //   const newMarkedState = !isMarked
-    //   setIsMarked(newMarkedState)
+      const newMarkedState = !isMarked
+      setIsMarked(newMarkedState)
 
-    //   try {
-        // const res = await toggleStarMarked(id, newMarkedState)
-        // const {success ,error , isMarked} = res;
+      try {
+        const res = await toggleStarMarked(id, newMarkedState)
+        const {success ,error , isMarked} = res;
 
-    //    if ismarked true then show marked successfully otherwise show start over
-    //     if (isMarked && !error && success) {
-    //       toast.success("Added to Favorites successfully")
-    //     } else {
-    //       toast.success("Removed from Favorites successfully")
-    //     }
+      //  if ismarked true then show marked successfully otherwise show start over
+        if (isMarked && !error && success) {
+          toast.success("Added to Favorites successfully")
+        } else {
+          toast.success("Removed from Favorites successfully")
+        }
 
 
 
-    //   } catch (error) {
-    //     console.error("Failed to toggle mark for revision:", error)
-    //     setIsMarked(!newMarkedState) // Revert state if the update fails
-    //     // You might want to add a toast notification here for the user
-    //   }
-    // }
+      } catch (error) {
+        console.error("Failed to toggle mark for revision:", error)
+        setIsMarked(!newMarkedState) // Revert state if the update fails
+        // You might want to add a toast notification here for the user
+      }
+    }
 
     return (
       <Button
         ref={ref}
         variant="ghost"
         className={`flex items-center justify-start w-full px-2 py-1.5 text-sm rounded-md cursor-pointer ${className}`}
-        // onClick={handleToggle}
+        onClick={handleToggle}
         {...props}
       >
         {isMarked ? (
