@@ -32,7 +32,7 @@ const AddNewButton = () => {
     const templateMap: Record<typeof data.template, Templates> = {
       REACT: Templates.REACT,
       NEXTJS: Templates.NEXTJS,
-      EXPRESS: Templates.HONO, // Map EXPRESS to HONO since EXPRESS isn't in Prisma enum
+      EXPRESS: Templates.EXPRESS, // Map EXPRESS to HONO since EXPRESS isn't in Prisma enum
       VUE: Templates.VUE,
       HONO: Templates.HONO,
       ANGULAR: Templates.ANGULAR,

@@ -56,6 +56,7 @@ enum Templates {
   ANGULAR
   HONO
   NEXTJS
+  EXPRESS
 }
 model Playground {
   id        String   @id @default(cuid()) @map("_id")
