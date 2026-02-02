@@ -44,14 +44,18 @@ export const toggleStarMarked = async (
 export const getAllPlaygroundForUser = async () => {
   const session = await auth();
 
+  if (!session?.userId) {
+    return [];
+  }
+
   try {
     const playground = await db.playground.findMany({
       where: {
-        userId: session?.userId,
+        userId: session.userId,
       },
       include: {
         user: true,
-        Starmarked: true,
+        Starmark: true,
       },
     });
     return playground;

@@ -23,16 +23,29 @@ export const useWebContainer = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [instance, setInstance] = useState<WebContainer | null>(null);
+  const instanceRef = useRef<WebContainer | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function initializeWebContainer() {
       try {
+        // Check if instance already exists to avoid "Only a single WebContainer instance can be booted" error
+        if (instanceRef.current) {
+          setInstance(instanceRef.current);
+          setIsLoading(false);
+          return;
+        }
+
         const webcontainerInstance = await WebContainer.boot();
 
-        if (!mounted) return;
+        if (!mounted) {
+          // If component unmounted during boot, teardown immediately
+          webcontainerInstance.teardown();
+          return;
+        }
 
+        instanceRef.current = webcontainerInstance;
         setInstance(webcontainerInstance);
         setIsLoading(false);
       } catch (error) {
@@ -51,9 +64,6 @@ export const useWebContainer = ({
     initializeWebContainer();
     return () => {
       mounted = false;
-      if (instance) {
-        instance.teardown();
-      }
     };
   }, []);
 
@@ -84,7 +94,8 @@ export const useWebContainer = ({
 
   const destroy = useCallback(() => {
     if (instance) {
-      instance.teardown;
+      instance.teardown();
+      instanceRef.current = null;
       setInstance(null);
       setServerUrl(null);
     }

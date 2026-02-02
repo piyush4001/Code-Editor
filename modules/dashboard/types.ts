@@ -17,6 +17,6 @@ export interface User {
     updatedAt: Date
     userId: string
     user: User
-    Starmarked: { isMarked: boolean }[]
+    Starmark: { isMarked: boolean }[]
   }
   
