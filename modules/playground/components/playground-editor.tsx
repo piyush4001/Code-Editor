@@ -43,7 +43,13 @@ export const PlaygroundEditor = ({
   const isAcceptingSuggestionRef = useRef(false);
   const suggestionAcceptedRef = useRef(false);
   const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const tabCommandRef = useRef<any>(null);
+  const tabCommandRef = useRef<string | number | null>(null);
+
+  const safeDispose = (value: unknown) => {
+    if (value && typeof (value as { dispose?: unknown }).dispose === "function") {
+      (value as { dispose: () => void }).dispose();
+    }
+  };
 
   // Generate unique ID for each suggestion
   const generateSuggestionId = () =>
@@ -308,10 +314,8 @@ export const PlaygroundEditor = ({
     }
 
     // Dispose previous provider
-    if (inlineCompletionProviderRef.current) {
-      inlineCompletionProviderRef.current.dispose();
-      inlineCompletionProviderRef.current = null;
-    }
+    safeDispose(inlineCompletionProviderRef.current);
+    inlineCompletionProviderRef.current = null;
 
     // Clear current suggestion reference
     currentSuggestionRef.current = null;
@@ -340,10 +344,8 @@ export const PlaygroundEditor = ({
     }
 
     return () => {
-      if (inlineCompletionProviderRef.current) {
-        inlineCompletionProviderRef.current.dispose();
-        inlineCompletionProviderRef.current = null;
-      }
+      safeDispose(inlineCompletionProviderRef.current);
+      inlineCompletionProviderRef.current = null;
     };
   }, [
     suggestion,
@@ -390,10 +392,6 @@ export const PlaygroundEditor = ({
     });
 
     // CRITICAL: Override Tab key with high priority and prevent default Monaco behavior
-    if (tabCommandRef.current) {
-      tabCommandRef.current.dispose();
-    }
-
     tabCommandRef.current = editor.addCommand(
       monaco.KeyCode.Tab,
       () => {
@@ -569,14 +567,9 @@ export const PlaygroundEditor = ({
       if (suggestionTimeoutRef.current) {
         clearTimeout(suggestionTimeoutRef.current);
       }
-      if (inlineCompletionProviderRef.current) {
-        inlineCompletionProviderRef.current.dispose();
-        inlineCompletionProviderRef.current = null;
-      }
-      if (tabCommandRef.current) {
-        tabCommandRef.current.dispose();
-        tabCommandRef.current = null;
-      }
+      safeDispose(inlineCompletionProviderRef.current);
+      inlineCompletionProviderRef.current = null;
+      tabCommandRef.current = null;
     };
   }, []);
 
